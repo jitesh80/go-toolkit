@@ -1,15 +1,15 @@
 package toolkit
 
 import (
-    "bytes"
-    "crypto/rand"
+	"bytes"
+	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-    "log"
-    "net/http"
-    "os"
+	"log"
+	"net/http"
+	"os"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -303,8 +303,8 @@ func (t *Tools) ErrorJSON(w http.ResponseWriter, err error, status ...int) error
 	payload.Error = true
 	payload.Message = err.Error()
 
-    log.Println("Error.json", err)
-    log.Println("Error.json.statusCode", statusCode)
+	log.Println("Error.json", err)
+	log.Println("Error.json.statusCode", statusCode)
 
 	return t.WriteJSON(w, statusCode, payload)
 }
@@ -312,32 +312,32 @@ func (t *Tools) ErrorJSON(w http.ResponseWriter, err error, status ...int) error
 // PushJSONToRemote posts arbitrary to some URL as JSON and returns a response, status code and error if any
 // The final parameter client is optional. If none is specified, we use the standard http.Client
 func (t *Tools) PushJSONToRemote(uri string, data interface{}, client ...*http.Client) (*http.Response, int, error) {
-    // create JSON
-    jsonData, err := json.Marshal(data)
-    if err != nil {
-        return nil, 0, err
-    }
+	// create JSON
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return nil, 0, err
+	}
 
-    // check for custom http client
-    httpClient := &http.Client{}
-    if len(client) > 0 {
-        httpClient = client[0]
-    }
+	// check for custom http client
+	httpClient := &http.Client{}
+	if len(client) > 0 {
+		httpClient = client[0]
+	}
 
-    // build http request and see http header
-    request, err := http.NewRequest("POST", uri, bytes.NewBuffer(jsonData))
-    if err != nil {
-        return nil, 0, err
-    }
-    request.Header.Set("Content-Type", "application/json")
+	// build http request and see http header
+	request, err := http.NewRequest("POST", uri, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return nil, 0, err
+	}
+	request.Header.Set("Content-Type", "application/json")
 
-    // call the remote uri
-    response, err := httpClient.Do(request)
-    if err != nil {
-        return nil, 0, err
-    }
-    defer response.Body.Close()
+	// call the remote uri
+	response, err := httpClient.Do(request)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer response.Body.Close()
 
-    // send the response back
-    return response, response.StatusCode, nil
+	// send the response back
+	return response, response.StatusCode, nil
 }
