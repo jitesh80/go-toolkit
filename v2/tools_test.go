@@ -2,9 +2,9 @@ package toolkit
 
 import (
 	"bytes"
-    "encoding/json"
-    "errors"
-    "fmt"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"image"
 	"image/png"
 	"io"
@@ -21,13 +21,13 @@ import (
 type RoundTripFunc func(req *http.Request) *http.Response
 
 func (f RoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
-    return f(req), nil
+	return f(req), nil
 }
 
 func NewTestClient(fn RoundTripFunc) *http.Client {
-    return &http.Client{
-        Transport: fn,
-    }
+	return &http.Client{
+		Transport: fn,
+	}
 }
 
 func TestTools_RandomString(t *testing.T) {
@@ -216,7 +216,7 @@ func TestTools_DownloadStaticFile(t *testing.T) {
 
 	var testTool Tools
 
-	testTool.DownloadStaticFile(rr, req, "./testdata/pic.jpg", "puppy.jpg")
+	testTool.DownloadStaticFile(rr, req, "./testdata/", "pic.jpg", "puppy.jpg")
 
 	res := rr.Result()
 	defer res.Body.Close()
@@ -314,49 +314,49 @@ func TestTools_WriteJSON(t *testing.T) {
 }
 
 func TestTools_ErrorJSON(t *testing.T) {
-    var testTools Tools
+	var testTools Tools
 
-    rr := httptest.NewRecorder()
-    err := testTools.ErrorJSON(rr, errors.New("sample error message"), http.StatusServiceUnavailable)
-    if err != nil {
+	rr := httptest.NewRecorder()
+	err := testTools.ErrorJSON(rr, errors.New("sample error message"), http.StatusServiceUnavailable)
+	if err != nil {
 		t.Errorf("failed to write error json: %v", err.Error())
-    }
+	}
 
-    var response JSONResponse
-    decoder := json.NewDecoder(rr.Body)
-    err = decoder.Decode(&response)
-    if err != nil {
-        t.Errorf("failed to decode response json: %v", err.Error())
-    }
-    log.Println("Test.json.response", response)
+	var response JSONResponse
+	decoder := json.NewDecoder(rr.Body)
+	err = decoder.Decode(&response)
+	if err != nil {
+		t.Errorf("failed to decode response json: %v", err.Error())
+	}
+	log.Println("Test.json.response", response)
 
-    if !response.Error {
-        t.Error("error set to false in JSON, and it should be true")
-    }
+	if !response.Error {
+		t.Error("error set to false in JSON, and it should be true")
+	}
 
-    if rr.Code != http.StatusServiceUnavailable {
-        t.Errorf("wrong status code returned; expected 503, but got %d", rr.Code)
-    }
+	if rr.Code != http.StatusServiceUnavailable {
+		t.Errorf("wrong status code returned; expected 503, but got %d", rr.Code)
+	}
 }
 
 func TestTools_PushJSONToRemote(t *testing.T) {
-    client := NewTestClient(func(req *http.Request) *http.Response{
-        // Test request parameters
-        return &http.Response{
-            StatusCode: http.StatusOK,
-            Body: ioutil.NopCloser(bytes.NewBufferString("ok")),
-            Header: make(http.Header),
-            }
-    })
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		// Test request parameters
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       ioutil.NopCloser(bytes.NewBufferString("ok")),
+			Header:     make(http.Header),
+		}
+	})
 
-    var testTools Tools
-    var foo struct {
-        Bar string `json:"bar"`
-    }
-    foo.Bar = "bar"
+	var testTools Tools
+	var foo struct {
+		Bar string `json:"bar"`
+	}
+	foo.Bar = "bar"
 
-    _, _, err := testTools.PushJSONToRemote("http://example.com/some/path", foo, client)
-    if err != nil {
-        t.Error("error while pushing json to remote:", err)
-    }
+	_, _, err := testTools.PushJSONToRemote("http://example.com/some/path", foo, client)
+	if err != nil {
+		t.Error("error while pushing json to remote:", err)
+	}
 }
